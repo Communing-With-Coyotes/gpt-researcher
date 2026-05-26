@@ -135,16 +135,17 @@ class MCPResearchSkill:
                         continue
                         
             # Also include the LLM's own analysis/response as a result
-            if hasattr(response, 'content') and response.content:
+            llm_content = response.content or getattr(response, 'reasoning_content', None) or ""
+            if hasattr(response, 'content') and llm_content:
                 llm_analysis = {
                     "title": f"LLM Analysis: {query}",
                     "href": "mcp://llm_analysis",
-                    "body": response.content
+                    "body": llm_content
                 }
                 research_results.append(llm_analysis)
                 
                 # Log LLM analysis content
-                analysis_preview = response.content[:300] + "..." if len(response.content) > 300 else response.content
+                analysis_preview = llm_content[:300] + "..." if len(llm_content) > 300 else llm_content
                 logger.debug(f"LLM Analysis: {analysis_preview}")
                 logger.info("Added LLM analysis to results")
             

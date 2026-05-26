@@ -157,19 +157,19 @@ async def create_chat_completion_with_tools(
             if cost_callback:
                 from .costs import estimate_llm_cost
                 # Calculate costs for both calls
-                llm_costs = estimate_llm_cost(str(lc_messages), final_response.content or "")
+                llm_costs = estimate_llm_cost(str(lc_messages), final_response.content or getattr(final_response, 'reasoning_content', None) or "")
                 cost_callback(llm_costs)
             
-            return final_response.content, tool_calls_metadata
+            return final_response.content or getattr(final_response, 'reasoning_content', None) or "", tool_calls_metadata
         
         else:
             # No tool calls, return regular response
             if cost_callback:
                 from .costs import estimate_llm_cost
-                llm_costs = estimate_llm_cost(str(messages), response.content or "")
+                llm_costs = estimate_llm_cost(str(messages), response.content or getattr(response, 'reasoning_content', None) or "")
                 cost_callback(llm_costs)
             
-            return response.content, []
+            return response.content or getattr(response, 'reasoning_content', None) or "", []
         
     except Exception as e:
         error_type = type(e).__name__

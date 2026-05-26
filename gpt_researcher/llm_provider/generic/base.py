@@ -286,7 +286,7 @@ class GenericLLMProvider:
             # Getting output from the model chain using ainvoke for asynchronous invoking
             output = await self.llm.ainvoke(messages, **kwargs)
 
-            res = output.content
+            res = output.content or getattr(output, 'reasoning_content', None) or ""
 
         else:
             res = await self.stream_response(messages, websocket, **kwargs)
@@ -302,7 +302,7 @@ class GenericLLMProvider:
 
         # Streaming the response using the chain astream method from langchain
         async for chunk in self.llm.astream(messages, **kwargs):
-            content = chunk.content
+            content = chunk.content or getattr(chunk, 'reasoning_content', None) or ""
             if not content:
                 continue
             response += content
